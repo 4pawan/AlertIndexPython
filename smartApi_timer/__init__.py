@@ -1,17 +1,18 @@
-from .smartConnect import SmartConnect
-from .connect_util import ConnectUtil as cu
-import pyotp
-import datetime
-import logging
-from .result import Result
-from .settings import Configuration as config
+from .config_parser import ConfigParserUtility as cfu
 from .datetime_util import DateTimeUtility as dtu
-from .notify_user import NotifyUser
 from .telegram_util import TelegramUtility as tu
+from .settings import Configuration as config
+from .connect_util import ConnectUtil as cu
 from .index_alert_util import IndexAlert 
 from .stock_alert_util import StockAlert 
-
+from .smartConnect import SmartConnect
+from .notify_user import NotifyUser
+from .debug_app import Debug_App
 import azure.functions as func
+from .result import Result
+import datetime
+import logging
+import pyotp
 
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -21,21 +22,27 @@ def main(mytimer: func.TimerRequest) -> None:
     if mytimer.past_due:
         logging.info('The timer is past due!')
     
-    logging.info('Python timer trigger function ran at %s', utc_timestamp)
+    logging.info('Python timer trigger function ran at %s', utc_timestamp)    
+    init_data = cfu.read_all_settings()
+    debug_enable = init_data.App.debug
 
     connect = SmartConnect(config.api_key)
     totp = pyotp.TOTP(config.token).now()
     data = connect.generateSession(config.username, config.pwd, totp)
-    #tu.send_telegram_message(data)
+    Debug_App.debug(debug_enable,data)
+
     if data['status'] == False:
         tu.send_telegram_message(str(data), config.telegram_index_alert_token, config.telegram_index_alert_chat_id)
     else:     
         dt_now = dtu.get_ist_datetime_now()
-        prev_day = dtu.subtract_minute(dtu.get_ist_previous_working_day(), 16)
+        prev_day = dtu.subtract_minute(dtu.get_ist_previous_working_day(init_data), 16)
         fromdate = dtu.to_ist_datetime_string(prev_day)
         todate = dtu.to_ist_datetime_string(dt_now)  
-        live_data = connect.getMarketData("FULL", {"NSE": ["99926000", "99926009", "467"]})['data']['fetched']        
+        Debug_App.debug(debug_enable, f"2: {fromdate}_{todate}")
+        live_data = connect.getMarketData("FULL", {"NSE": ["99926000", "99926009", "467"]})['data']['fetched']   
+        Debug_App.debug(debug_enable, f"3: {live_data}")     
         IndexAlert.send_index_alert(live_data[1],live_data[2])
-        stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate,"467")       
+        stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate,"467")  
+        Debug_App.debug(debug_enable, f"4: {stock_raw_data}")       
         stock_result = StockAlert.get_result(stock_raw_data,live_data[0],todate)
         NotifyUser.send_message(stock_result)
