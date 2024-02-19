@@ -13,7 +13,7 @@ class StockAlert:
         Result.Change = live_data['netChange']
         Result.OI = live_data['opnInterest'] / 100000
         Result.Vol = live_data['tradeVolume'] / 100000
-        Result.Close = live_data['close']
+        Result.Close = live_data['ltp']
         Result.Date = todate
         df = Analysis.generate_signal(df)
         Result.Strength = Analysis.get_moving_avg_strength(df)
