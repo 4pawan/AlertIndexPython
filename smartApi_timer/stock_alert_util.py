@@ -12,7 +12,8 @@ class StockAlert:
         df = pd.DataFrame(hist_data['data'])
         Result.Change = live_data['netChange']
         Result.OI = live_data['opnInterest'] / 100000
-        Result.Vol = live_data['tradeVolume'] / 100000
+        vol_data = live_data['tradeVolume'] / 100000
+        Result.Vol = float("{:.2f}".format(vol_data))    
         Result.Close = live_data['ltp']
         Result.Date = todate
         df = Analysis.generate_signal(df)
