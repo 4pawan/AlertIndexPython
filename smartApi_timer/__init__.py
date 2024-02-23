@@ -38,11 +38,15 @@ def main(mytimer: func.TimerRequest) -> None:
         prev_day = dtu.subtract_minute(dtu.get_ist_previous_working_day(init_data), 16)
         fromdate = dtu.to_ist_datetime_string(prev_day)
         todate = dtu.to_ist_datetime_string(dt_now)  
-        Debug_App.debug(debug_enable, f"2: {fromdate}_{todate}")
-        live_data = connect.getMarketData("FULL", {"NSE": ["99926000", "99926009", "467"]})['data']['fetched']   
+        Debug_App.debug(debug_enable, f"2: {fromdate}_{todate}")               
+        live_data = connect.getMarketData("FULL", {"NSE": init_data.Alert.exchange_token_all })['data']['fetched']   
         Debug_App.debug(debug_enable, f"3: {live_data}")     
-        IndexAlert.send_index_alert(live_data[1],live_data[2])
-        stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate,"467")  
-        Debug_App.debug(debug_enable, f"4: {stock_raw_data}")       
-        stock_result = StockAlert.get_result(stock_raw_data,live_data[0],todate)
-        NotifyUser.send_message(stock_result)
+        IndexAlert.send_index_alert(live_data[init_data.Alert.nifty_index],live_data[init_data.Alert.bank_nifty_index])
+ 
+        for i in range(0, len(init_data.Alert.exchange_token)):
+            stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate, init_data.Alert.exchange_token[i])  
+            Debug_App.debug(debug_enable, f"4_{i}: {stock_raw_data}") 
+            result_index = init_data.Alert.exchange_token_result_index[i]     
+            stock_result = StockAlert.get_result(stock_raw_data,live_data[result_index],todate)
+            Debug_App.debug(debug_enable, f"5_{i}: {stock_result.Close}")  
+            NotifyUser.send_message(stock_result)
