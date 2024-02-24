@@ -1,6 +1,6 @@
 from .settings import Configuration as config
 import configparser
-from .init_configuation import  InitConfig
+from .init_configuation import  InitConfig, EntryData
 
 class ConfigParserUtility:
     
@@ -28,9 +28,20 @@ class ConfigParserUtility:
                     InitConfig.Alert.exchange_token_all.append(int(exchange_token[i]))
                 
          InitConfig.Alert.nifty_index = int(parser["alert"]["nifty_index"])  
-         InitConfig.Alert.bank_nifty_index = int(parser["alert"]["bank_nifty_index"])  
-         
-         InitConfig.Trade_Data.enable_entry_rule_for =(parser["trade"]["enable_entry_rule_for"]).split(',') 
+         InitConfig.Alert.bank_nifty_index = int(parser["alert"]["bank_nifty_index"]) 
+
+         InitConfig.Trade_Data.enable_trade = True if parser["trade"]["enable_trade"] == 'true' else False 
+
+         entry_rules = (parser["trade"]["enable_entry_rule_for"]).split(',') 
+         for rule in entry_rules: 
+             param = rule.split('-')
+             entry = EntryData
+             entry.result_to_follow = int(param[0])
+             entry.quantity = int(param[1])
+             entry.order_type = param[2]
+             entry.symbol_id = int(param[3])               
+             InitConfig.Trade_Data.enable_entry_rule_for.append(entry)
+
          InitConfig.Trade_Data.enable_exit_rule_that_contains =(parser["trade"]["enable_exit_rule_that_contains"]).split(',') 
          InitConfig.Trade_Data.skip_exit_rule_for =(parser["trade"]["skip_exit_rule_for"]).split(',') 
 

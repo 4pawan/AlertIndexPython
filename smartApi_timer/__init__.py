@@ -10,6 +10,7 @@ from .notify_user import NotifyUser
 from .debug_app import Debug_App
 import azure.functions as func
 from .result import Result
+from .trade import Trade
 import datetime
 import logging
 import pyotp
@@ -30,6 +31,9 @@ def main(mytimer: func.TimerRequest) -> None:
     totp = pyotp.TOTP(config.token).now()
     data = connect.generateSession(config.username, config.pwd, totp)
     Debug_App.debug(debug_enable,data)
+    if debug_enable == True:
+        orders = Trade.get_orders(connect)
+        Debug_App.debug(debug_enable, f"0: {orders}") 
 
     if data['status'] == False:
         tu.send_telegram_message(str(data), config.telegram_index_alert_token, config.telegram_index_alert_chat_id)

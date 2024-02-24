@@ -1,3 +1,11 @@
+class EntryData:
+
+    result_to_follow = -1
+    quantity = -1
+    order_type = ''
+    symbol_id = -1
+
+
 class InitConfig:
     
     class App:
@@ -14,6 +22,7 @@ class InitConfig:
         bank_nifty_index = -1
 
     class Trade_Data:
-       enable_entry_rule_for =[]
+       enable_trade= False
+       enable_entry_rule_for = []
        enable_exit_rule_that_contains = []
        skip_exit_rule_for = []
