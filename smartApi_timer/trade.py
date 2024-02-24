@@ -1,7 +1,8 @@
-from datetime import datetime
-from .smartConnect import SmartConnect
 from .connect_util import ConnectUtil as cu
 from .init_configuation import InitConfig
+from .smartConnect import SmartConnect
+from .debug_app import Debug_App
+from datetime import datetime
 from .result import Result
 import pandas as pd
 
@@ -49,8 +50,10 @@ class Trade:
             if pos_found is None and order_found is None and is_market_view_satisfied:                
                 ltp_data = cu.get_ltp(connect, data.symbol_name ,data.symbol_id)['data']
                 ltp = float(ltp_data['ltp'])
-                cu.place_order(connect, ltp_data["tradingsymbol"], data.symbol_id, str(data.order_type).upper(), ltp, data.quantity, f"robot :{result.Signal}{result.Strength}")
-            return True
+                status = cu.place_order(connect, ltp_data["tradingsymbol"], data.symbol_id, str(data.order_type).upper(), ltp, data.quantity, f"robot :{result.Signal}{result.Strength}")
+                Debug_App.debug(init_data.App.debug, f"take_entry:{str(status)}")
+                Debug_App.debug(True, f"entry order placed with param {ltp_data['tradingsymbol']} {data.order_type} {data.quantity} {ltp}")
+                return True
                 
         return False
 
@@ -72,9 +75,14 @@ class Trade:
             is_valid_result = str(pos["tradingsymbol"]).lower() in result.Symbol_Name.lower()
             is_rev_market_found = required_square_off_signal == Result.Signal and is_valid_result and Result.Strength > 1
             if existing_order_found is None and is_rev_market_found and is_valid_result:
-                ltp_data = cu.get_ltp(connect, pos["tradingsymbol"], pos["symboltoken"])['data']
+                ltp_data = cu.get_ltp(connect, pos["tradingsymbol"], pos['symboltoken'])['data']
                 ltp = float(ltp_data['ltp'])
-                cu.place_order(connect, pos["tradingsymbol"], pos["symboltoken"], transaction_type, ltp, pos["netqty"], f"robot :{result.Signal}{result.Strength}")
+                status = cu.place_order(connect, pos["tradingsymbol"], pos["symboltoken"], transaction_type, ltp, pos["netqty"], f"robot :{result.Signal}{result.Strength}")
+                Debug_App.debug(init_data.App.debug, f"square_off:{str(status)}")
+                Debug_App.debug(True, f"exit order placed with param {ltp_data['tradingsymbol']} {transaction_type} {pos['netqty']} {ltp}")
+                return True            
+        
+        return False
 
     @staticmethod
     def extract_market_view_to_square_off_from_position(pos):
