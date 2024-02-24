@@ -13,5 +13,7 @@ class Result:
     Strength = 0
     Date = datetime.now()
     Rsi = 0.0
+    Symbol_token = -1
+    Symbol_Name = ''
 
 

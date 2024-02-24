@@ -50,9 +50,9 @@
     }]
 }
 
-//orderbook
+
 {
-    'status': True,
+    'status': True, // orderbook   func azure functionapp publish SmartApiPython
     'message': 'SUCCESS',
     'errorcode': '',
     'data': [{
@@ -241,4 +241,16 @@
         'parentorderid': '',
         'uniqueorderid': 'P56014753_b0798d5a-7cbc-410c-bd40-e5c5dc822f79'
     }]
+}
+
+//ltp[data]
+{
+    'exchange': 'NFO',
+    'tradingsymbol': 'HDFCLIFE28MAR24580PE',
+    'symboltoken': '124341',
+    'open': 16.05,
+    'high': 19.4,
+    'low': 16.05,
+    'close': 20.0,
+    'ltp': 18.0
 }

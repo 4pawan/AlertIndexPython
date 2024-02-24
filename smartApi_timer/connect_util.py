@@ -24,10 +24,10 @@ class ConnectUtil:
             "symboltoken": symboltoken,
             "transactiontype": transactiontype,
             "exchange": exchange,
-            "ordertype": "MARKET",
+            "ordertype": "LIMIT",
             "producttype": producttype,
             "duration": "DAY",
-            #"price": price,
+            "price": price,
             #"squareoff": "0",
             #"stoploss": "0",
             "quantity": quantity,
@@ -44,5 +44,7 @@ class ConnectUtil:
         return connect.orderBook()
 
     @staticmethod
-    def get_ltp(connect: SmartConnect, symboltoken):
-        return connect.ltpData("NSE", "", symboltoken)
+    def get_ltp(connect: SmartConnect, symbolname: str, symboltoken):
+        symbol_name = symbolname.lower()
+        exchange = "NFO" if (symbol_name.endswith("ce") or symbol_name.endswith("pe") or symbol_name.endswith("fut")) else "NSE"
+        return connect.ltpData(exchange, symbol_name, symboltoken)

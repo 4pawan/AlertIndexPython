@@ -13,54 +13,68 @@ class Trade:
         return cu.get_order_details(connect)["data"]
 
     @staticmethod
-    def enter_or_exit_trade(connect: SmartConnect, symbol_name: str, order_type: str, quantity: int, result: Result):
+    def enter_or_exit_trade(connect: SmartConnect, init_data: InitConfig, result: Result):
 
         if datetime.now().time() < datetime.time(3, 45): #9.15am ist
             return
-
-        print("Im not called..........................")
-
-        all_position = cu.get_position(connect)["data"]
+               
+        positions = cu.get_position(connect)["data"]
         orders = cu.get_order_details(connect)["data"]
-        is_entry_taken = Trade.take_entry(connect, symbol_name, order_type, quantity, all_position, orders, Result)
-        is_exit_taken = Trade.square_off_position(connect, result)
-
+        is_entry_taken = Trade.take_entry(connect, init_data, positions, orders, result)
+        is_exit_taken = Trade.square_off_position(connect, init_data, positions, orders, result)
 
 
     @staticmethod
-    def take_entry(connect, symbol_name, symboltoken, order_type: str, quantity, all_position, orders, Result):
-        df_position = pd.DataFrame(all_position)
-        df_order = pd.DataFrame(orders)
-        filter_pos_entry_symbol_condition = df_position["tradingsymbol"] == symbol_name
-        filter_order_entry_symbol_condition = df_order["tradingsymbol"] == symbol_name
-        pos_entry_found = df_position[filter_pos_entry_symbol_condition]
-        order_entry_found = df_order[filter_order_entry_symbol_condition]
-        order_type_to_execute = "b" if order_type.lower() == "buy" else "s"
-        is_fav_market_found = Result.Signal == order_type_to_execute
-        if pos_entry_found is None and order_entry_found is None and is_fav_market_found:
-            ltp_data = cu.get_ltp(connect, symbol_name, symboltoken)
-            ltp = float(ltp_data['data']['ltp'])
-            cu.place_order(connect, symbol_name, symboltoken, order_type, ltp, quantity, "test tag")
-            return True
+    def take_entry(connect, init_data: InitConfig, positions, orders, result: Result):   
+         
+        df_positions = pd.DataFrame(positions)
+        df_orders = pd.DataFrame(orders)        
+        entry_data = init_data.Trade_Data.enable_entry_rule_for
+              
+        for data in entry_data:               
+            pos_found = pd.DataFrame()
+            order_found = pd.DataFrame()  
+            order_type_to_execute = "b" if data.order_type.lower() == "buy" else "s"
+            
+            if not df_positions.empty:           
+                filter_symbol_condition = df_positions["tradingsymbol"] == data.symbol_id               
+                pos_found = df_positions[filter_symbol_condition]
 
+            if not df_orders.empty:           
+                filter_order_symbol_condition = df_orders["tradingsymbol"] == data.symbol_id  
+                filter_order_status_condition = df_orders["orderstatus"] == "open"  
+                order_found = df_orders[filter_order_symbol_condition & filter_order_status_condition]
+                        
+            is_market_view_satisfied = result.Symbol_token == data.result_to_follow and result.Signal == order_type_to_execute            
+            if pos_found is None and order_found is None and is_market_view_satisfied:                
+                ltp_data = cu.get_ltp(connect, data.symbol_name ,data.symbol_id)['data']
+                ltp = float(ltp_data['ltp'])
+                cu.place_order(connect, ltp_data["tradingsymbol"], data.symbol_id, str(data.order_type).upper(), ltp, data.quantity, f"robot :{result.Signal}{result.Strength}")
+            return True
+                
         return False
 
+
     @staticmethod
-    def square_off_position(connect: SmartConnect, init_data: InitConfig, result: Result):
-        all_position = cu.get_position(connect)["data"]
+    def square_off_position(connect: SmartConnect, init_data: InitConfig, positions, orders, result: Result):
+        positions = cu.get_position(connect)["data"]
         orders = cu.get_order_details(connect)["data"]
         df_order = pd.DataFrame(orders)
-
-        for pos in all_position:
-            print('pos', pos)
+        existing_order_found = pd.DataFrame()  
+        for pos in positions:           
             transaction_type = "BUY" if pos["buyqty"] == "0" else "SELL"
-            filter_symbol_condition = df_order["tradingsymbol"] == pos["tradingsymbol"]
-            filter_transaction_condition = df_order["transactiontype"] == transaction_type
-            order_found = df_order[filter_transaction_condition and filter_symbol_condition]
+            if not df_order.empty: 
+                filter_symbol_condition = df_order["tradingsymbol"] == pos["tradingsymbol"]
+                filter_transaction_condition = df_order["transactiontype"] == transaction_type
+                filter_order_status_condition = df_order["orderstatus"] == "open" 
+                existing_order_found = df_order[filter_symbol_condition & filter_transaction_condition & filter_order_status_condition]
             required_square_off_signal = Trade.extract_market_view_to_square_off_from_position(pos)
-            is_rev_market_found = required_square_off_signal == Result.Signal and Result.Strength > 2
-            if order_found is None and is_rev_market_found:
-               cu.place_order(connect, pos["tradingsymbol"], pos["symboltoken"], transaction_type, 0.0, pos["netqty"], "test tag")
+            is_valid_result = str(pos["tradingsymbol"]).lower() in result.Symbol_Name.lower()
+            is_rev_market_found = required_square_off_signal == Result.Signal and is_valid_result and Result.Strength > 1
+            if existing_order_found is None and is_rev_market_found and is_valid_result:
+                ltp_data = cu.get_ltp(connect, pos["tradingsymbol"], pos["symboltoken"])['data']
+                ltp = float(ltp_data['ltp'])
+                cu.place_order(connect, pos["tradingsymbol"], pos["symboltoken"], transaction_type, ltp, pos["netqty"], f"robot :{result.Signal}{result.Strength}")
 
     @staticmethod
     def extract_market_view_to_square_off_from_position(pos):

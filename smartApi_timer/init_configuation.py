@@ -4,6 +4,7 @@ class EntryData:
     quantity = -1
     order_type = ''
     symbol_id = -1
+    symbol_name = ''
 
 
 class InitConfig:

@@ -16,6 +16,8 @@ class StockAlert:
         Result.Vol = float("{:.2f}".format(vol_data))    
         Result.Close = live_data['ltp']
         Result.Date = todate
+        Result.Symbol_token = live_data['symbolToken']
+        Result.Symbol_Name = live_data['tradingSymbol']        
         df = Analysis.generate_signal(df)
         Result.Strength = Analysis.get_moving_avg_strength(df)
         Result.Signal = df.iloc[0]['signal']

@@ -39,7 +39,8 @@ class ConfigParserUtility:
              entry.result_to_follow = int(param[0])
              entry.quantity = int(param[1])
              entry.order_type = param[2]
-             entry.symbol_id = int(param[3])               
+             entry.symbol_id = int(param[3]) 
+             entry.symbol_name = param[4]                           
              InitConfig.Trade_Data.enable_entry_rule_for.append(entry)
 
          InitConfig.Trade_Data.enable_exit_rule_that_contains =(parser["trade"]["enable_exit_rule_that_contains"]).split(',') 

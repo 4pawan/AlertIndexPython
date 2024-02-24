@@ -54,3 +54,5 @@ def main(mytimer: func.TimerRequest) -> None:
             stock_result = StockAlert.get_result(stock_raw_data,live_data[result_index],todate)
             Debug_App.debug(debug_enable, f"5_{i}: {stock_result.Close}")  
             NotifyUser.send_message(stock_result)
+            if init_data.Trade_Data.enable_trade:
+                Trade.enter_or_exit_trade(connect, init_data, stock_result)
