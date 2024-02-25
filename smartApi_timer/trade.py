@@ -54,7 +54,7 @@ class Trade:
                 ltp_data = cu.get_ltp(connect, data.symbol_name ,data.symbol_id)['data']
                 Debug_App.debug(init_data.App.debug, f"take_entry2.1:{ltp_data}")
                 ltp = float(ltp_data['ltp'])
-                Debug_App.debug(init_data.App.debug, f"take_entry2.2:{ltp_data["tradingsymbol"]} {data.symbol_id} {str(data.order_type).upper()} {ltp} {data.quantity}")
+                Debug_App.debug(init_data.App.debug, f"take_entry2.2:{ltp_data['tradingsymbol']} {data.symbol_id} {str(data.order_type).upper()} {ltp} {data.quantity}")
                 status = cu.place_order(connect, ltp_data["tradingsymbol"], data.symbol_id, str(data.order_type).upper(), ltp, data.quantity, f"robot :{result.Signal}{result.Strength}")
                 Debug_App.debug(init_data.App.debug, f"take_entry:{status}")
                 Debug_App.debug(True, f"entry order placed with param {ltp_data['tradingsymbol']} {data.order_type} {data.quantity} {ltp}")
