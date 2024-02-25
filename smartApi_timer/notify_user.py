@@ -8,7 +8,7 @@ class NotifyUser:
     @staticmethod
     def send_message(data: Result):
           message = ''
-          if not data is None:
+          if not (data is None):
               strgth = f"<b>{data.Strength}</b>" if data.Strength == 0 else data.Strength         
               tu.send_telegram_message(f"{data.Signal}{strgth}  {data.Change}  close {data.Close} oi  {data.OI}   vol {data.Vol}  rsi {data.Rsi}",config.telegram_token,config.telegram_chat_id)
               message = f"{data.Date}|{data.Signal}|{data.Strength}|{data.Close}|{data.Change}|{data.OI}|{data.Vol}|{data.Rsi}|"
