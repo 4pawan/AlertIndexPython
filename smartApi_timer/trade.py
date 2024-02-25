@@ -71,6 +71,10 @@ class Trade:
         existing_order_found = pd.DataFrame()  
         for pos in positions:           
             transaction_type = "BUY" if pos["buyqty"] == "0" else "SELL"
+            skipped_found = Trade.is_square_off_to_be_skipped(pos, init_data)
+            if skipped_found:
+                continue
+
             if not df_order.empty: 
                 filter_symbol_condition = df_order["tradingsymbol"] == pos["tradingsymbol"]
                 filter_transaction_condition = df_order["transactiontype"] == transaction_type
@@ -117,3 +121,12 @@ class Trade:
         if order_name.endswith("EQ") and order_trans_type == "SELL":
             return "b"
         return "0"
+
+    @staticmethod
+    def is_square_off_to_be_skipped(pos, init_data: InitConfig):
+        symbol_name = pos['tradingsymbol']
+        for d in init_data.Trade_Data.skip_exit_rule_for:
+            if d in symbol_name:
+                return True
+                  
+        return False
