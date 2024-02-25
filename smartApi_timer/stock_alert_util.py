@@ -9,7 +9,7 @@ class StockAlert:
 
     @staticmethod
     def get_result(hist_data, live_data, todate):
-        if hist_data is None:
+        if hist_data['data'] is None:
             return None
     
         df = pd.DataFrame(hist_data['data'])
