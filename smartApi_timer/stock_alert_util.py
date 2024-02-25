@@ -9,6 +9,9 @@ class StockAlert:
 
     @staticmethod
     def get_result(hist_data, live_data, todate):
+        if hist_data is None:
+            return None
+    
         df = pd.DataFrame(hist_data['data'])
         Result.Change = live_data['netChange']
         Result.OI = live_data['opnInterest'] / 100000
@@ -24,3 +27,4 @@ class StockAlert:
         rsi_data = 0 if df.iloc[-1]['rsi'] is None else df.iloc[-1]['rsi']
         Result.Rsi = float("{:.2f}".format(rsi_data))
         return Result
+        
