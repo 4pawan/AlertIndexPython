@@ -23,9 +23,9 @@ class ConfigParserUtility:
                   
          exchange_token = (parser["alert"]["exchange_token"]).split(',')        
          if exchange_token:              
-               for i in range(0, len(exchange_token)):
-                    InitConfig.Alert.exchange_token.append(int(exchange_token[i]))
-                    InitConfig.Alert.exchange_token_all.append(int(exchange_token[i]))
+               for i in exchange_token:
+                    InitConfig.Alert.exchange_token.append(int(i))
+                    InitConfig.Alert.exchange_token_all.append(int(i))
                 
          InitConfig.Alert.nifty_index = int(parser["alert"]["nifty_index"])  
          InitConfig.Alert.bank_nifty_index = int(parser["alert"]["bank_nifty_index"]) 
