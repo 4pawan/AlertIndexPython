@@ -18,8 +18,8 @@ class ConfigParserUtility:
          InitConfig.Nse_Data.holiday_list =parser["nse"]["holiday_list"] 
        
          token_result_index = (parser["alert"]["exchange_token_result_index"]).split(',') 
-         for i in range(0, len(token_result_index)):
-             InitConfig.Alert.exchange_token_result_index.append(int(token_result_index[i]))
+         for i in token_result_index:
+             InitConfig.Alert.exchange_token_result_index.append(int(i))
                   
          exchange_token = (parser["alert"]["exchange_token"]).split(',')        
          if exchange_token:              
