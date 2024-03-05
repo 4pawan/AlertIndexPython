@@ -14,7 +14,6 @@ from .trade import Trade
 import datetime
 import logging
 import pyotp
-import json
 
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -56,9 +55,9 @@ def main(mytimer: func.TimerRequest) -> None:
             Debug_App.debug(debug_enable, f"4_{index}: {stock_raw_data}") 
             result_index = init_data.Alert.exchange_token_result_index[index] 
             Debug_App.debug(debug_enable, f"4_index{index}: {result_index}")     
-            stock_result = StockAlert.get_result(stock_raw_data,live_data[result_index],todate)
-            Debug_App.debug(debug_enable, f"5_{index}: {json.dumps(stock_result)}")  
+            stock_result = StockAlert.get_result(stock_raw_data,live_data[result_index],todate)           
             NotifyUser.send_message(stock_result)
             index = index + 1
             if init_data.Trade_Data.enable_trade and not (stock_result is None):
+                Debug_App.debug(debug_enable, f"5_{index}: {stock_result.Change}")  
                 Trade.enter_or_exit_trade(connect, init_data, stock_result)
