@@ -14,6 +14,7 @@ from .trade import Trade
 import datetime
 import logging
 import pyotp
+import json
 
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -46,15 +47,18 @@ def main(mytimer: func.TimerRequest) -> None:
         live_data = connect.getMarketData("FULL", {"NSE": init_data.Alert.exchange_token_all })['data']['fetched']   
         Debug_App.debug(debug_enable, f"3: {live_data}")     
         IndexAlert.send_index_alert(live_data[init_data.Alert.nifty_index],live_data[init_data.Alert.bank_nifty_index])
- 
-        for i in range(0, len(init_data.Alert.exchange_token)):
-            Debug_App.debug(debug_enable, f"4_raw:{i}:{fromdate} {todate} {init_data.Alert.exchange_token[i]}") 
-            stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate, init_data.Alert.exchange_token[i])  
-            Debug_App.debug(debug_enable, f"4_{i}: {stock_raw_data}") 
-            result_index = init_data.Alert.exchange_token_result_index[i] 
-            Debug_App.debug(debug_enable, f"4_index{i}: {result_index}")     
+        Debug_App.debug(debug_enable, f"3.1: {init_data.Alert.exchange_token}")   
+
+        index = 0
+        for i in init_data.Alert.exchange_token:
+            Debug_App.debug(debug_enable, f"4_raw:{index}:{fromdate} {todate} {i}") 
+            stock_raw_data = cu.get_history_data_15min(connect ,fromdate, todate, i)  
+            Debug_App.debug(debug_enable, f"4_{index}: {stock_raw_data}") 
+            result_index = init_data.Alert.exchange_token_result_index[index] 
+            Debug_App.debug(debug_enable, f"4_index{index}: {result_index}")     
             stock_result = StockAlert.get_result(stock_raw_data,live_data[result_index],todate)
-            Debug_App.debug(debug_enable, f"5_{i}: {stock_result}")  
+            Debug_App.debug(debug_enable, f"5_{index}: {json.dumps(stock_result)}")  
             NotifyUser.send_message(stock_result)
+            index = index + 1
             if init_data.Trade_Data.enable_trade and not (stock_result is None):
                 Trade.enter_or_exit_trade(connect, init_data, stock_result)
