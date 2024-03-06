@@ -30,7 +30,9 @@ def main(mytimer: func.TimerRequest) -> None:
     Debug_App.debug(debug_enable, f"0.0.0 {init_data.Alert.exchange_token}")
     Debug_App.debug(debug_enable, f"0.0.1 {init_data.Alert.exchange_token_result_index}")
     Debug_App.debug(debug_enable, f"0.0.2 {np.unique(init_data.Alert.exchange_token)}")    
-
+    init_data.Alert.exchange_token = np.unique(init_data.Alert.exchange_token)
+    init_data.Alert.exchange_token_result_index = np.unique(init_data.Alert.exchange_token_result_index)
+   
     connect = SmartConnect(config.api_key)
     totp = pyotp.TOTP(config.token).now()
     data = connect.generateSession(config.username, config.pwd, totp)
