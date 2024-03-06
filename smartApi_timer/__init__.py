@@ -26,6 +26,8 @@ def main(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran at %s', utc_timestamp)    
     init_data = cfu.read_all_settings()
     debug_enable = init_data.App.debug
+    Debug_App.debug(debug_enable, f"0.0.0 {init_data.Alert.exchange_token}")
+    Debug_App.debug(debug_enable, f"0.0.1 {init_data.Alert.exchange_token_result_index}")
 
     connect = SmartConnect(config.api_key)
     totp = pyotp.TOTP(config.token).now()
