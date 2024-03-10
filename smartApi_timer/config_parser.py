@@ -19,7 +19,7 @@ class ConfigParserUtility:
        
          token_result_index_temp = (parser["alert"]["exchange_token_result_index"]).split(',') 
          for i in token_result_index_temp:
-             InitConfig.Alert.exchange_token_result_index.append(i)
+             InitConfig.Alert.exchange_token_result_index.append(int(i))
                   
          exchange_token_temp = (parser["alert"]["exchange_token"]).split(',')        
          if exchange_token_temp:              

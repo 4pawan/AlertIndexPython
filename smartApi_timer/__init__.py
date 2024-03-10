@@ -11,7 +11,6 @@ from .debug_app import Debug_App
 import azure.functions as func
 from .result import Result
 from .trade import Trade
-import numpy as np
 import datetime
 import logging
 import pyotp
@@ -29,9 +28,9 @@ def main(mytimer: func.TimerRequest) -> None:
     debug_enable = init_data.App.debug
     Debug_App.debug(debug_enable, f"0.0.0 {init_data.Alert.exchange_token}")
     Debug_App.debug(debug_enable, f"0.0.1 {init_data.Alert.exchange_token_result_index}")
-    Debug_App.debug(debug_enable, f"0.0.2 {np.unique(init_data.Alert.exchange_token)}")    
-    init_data.Alert.exchange_token = np.unique(init_data.Alert.exchange_token)
-    init_data.Alert.exchange_token_result_index = np.unique(init_data.Alert.exchange_token_result_index)
+    Debug_App.debug(debug_enable, f"0.0.2 {config.unique(init_data.Alert.exchange_token)}")    
+    init_data.Alert.exchange_token = config.unique(init_data.Alert.exchange_token)
+    init_data.Alert.exchange_token_result_index = config.unique(init_data.Alert.exchange_token_result_index)
    
     connect = SmartConnect(config.api_key)
     totp = pyotp.TOTP(config.token).now()
