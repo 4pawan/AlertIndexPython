@@ -22,9 +22,11 @@ class StockAlert:
         Result.Symbol_token = live_data['symbolToken']
         Result.Symbol_Name = live_data['tradingSymbol']        
         df = Analysis.generate_signal(df)
-        Result.Strength = Analysis.get_moving_avg_strength(df)
+        Result.Strength = Analysis.get_moving_avg_strength(df)            
         Result.Signal = df.iloc[0]['signal']
         rsi_data = 0 if df.iloc[-1]['rsi'] is None else df.iloc[-1]['rsi']
+        Result.Mv9 = 0 if df.iloc[-1]['mv9'] is None else df.iloc[-1]['mv9']
+        Result.Mv26 = 0 if df.iloc[-1]['mv26'] is None else df.iloc[-1]['mv26']
         Result.Rsi = float("{:.2f}".format(rsi_data))
         return Result
         

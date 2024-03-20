@@ -13,6 +13,8 @@ class Analysis:
             df['mv'] = mv
             df['rsi'] = Indicator.calc_rsi(df[4])
             df['signal'] = 's'
+            df['mv9'] = ema9
+            df['mv26'] = ema26
             return df
         else:
             return Analysis.generate_buyer_signal(df)
@@ -24,6 +26,8 @@ class Analysis:
         df['mv'] = ta.above(ema9, ema26)
         df['rsi'] = Indicator.calc_rsi(df[4])
         df['signal'] = 'b'
+        df['mv9'] = ema9
+        df['mv26'] = ema26        
         return df
 
     @staticmethod
